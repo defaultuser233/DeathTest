@@ -16,6 +16,10 @@
 2. 或把文件丢到 GitHub Pages / Vercel / Netlify 等静态托管，访问链接即可。
 3. 无需后端、数据库或额外配置。
 
+## 🔗 链接
+![GitHub Pages](https://defaultuser233.github.io/DeathTest/)
+![Netlify](https://deathtest.netlify.app/index.html)
+
 ## 🧪 计分逻辑
 
 - 每题 4 个选项，对应 1–4 分（越高越「惜命」）

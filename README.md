@@ -17,8 +17,8 @@
 3. 无需后端、数据库或额外配置。
 
 ## 🔗 链接
-![GitHub Pages](https://defaultuser233.github.io/DeathTest/)
-![Netlify](https://deathtest.netlify.app/index.html)
+[GitHub Pages](https://defaultuser233.github.io/DeathTest/)
+[Netlify](https://deathtest.netlify.app/index.html)
 
 ## 🧪 计分逻辑
 

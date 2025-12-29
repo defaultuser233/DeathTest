@@ -13,7 +13,7 @@
      \_____/   ←大尾巴在后面
       || ||    ←爪爪
     ================================
-    https://github.com/defaultuser233/DeathTest
+    https://github.com/defaultuser233
     -->
     <title>死亡测试</title>
     <!-- ₍˄·͈༝·͈˄*₎◞ ̑̑ -->
@@ -99,10 +99,85 @@
             50% { width: 300px; opacity: 1; }
         }
 
+        .start-container {
+            background: rgba(30, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.3),
+                inset 0 0 10px rgba(255, 0, 0, 0.1);
+            animation: cardFadeIn 0.5s ease;
+        }
+
+        .start-description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ffcccc;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+        }
+
+        .start-info {
+            color: #ff9999;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid #ff0000;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #8b0000, #ff0000);
+            color: #fff;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.4rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 0, 0.5),
+                inset 0 0 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.8),
+                inset 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button:hover::before {
+            left: 100%;
+        }
+
         .progress-container {
             width: 100%;
             max-width: 600px;
             margin-bottom: 40px;
+            display: none;
         }
 
         .progress-bar {
@@ -166,6 +241,7 @@
             animation: cardFadeIn 0.5s ease;
             position: relative;
             overflow: hidden;
+            display: none;
         }
 
         .question-card::before {
@@ -430,25 +506,55 @@
                 height: 200px;
                 border-radius: 8px;
             }
+            
+            .start-container {
+                padding: 30px 20px;
+            }
+            
+            .start-button {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+            }
         }
     </style>
     <!-- ≽^•༚• ྀི≼ -->
 </head>
 <body>
     <h1 class="title">死亡测试</h1>
-    <!-- 这个测试会根据用户的选择计算生命重视度分数，并根据分数显示相应的结果和 -->
+    
+    <!-- 开始测试页面 -->
+    <div class="start-container" id="startContainer">
+        <h2 class="question-title">死亡人格测试</h2>
+        <p class="start-description">
+            这是一个测试您对生命的重视程度和面对死亡威胁时反应的测试。通过25个精心设计的情境问题，评估您的生存本能和生命态度。
+        </p>
+        <!-- (∩ᄑ_ᄑ)⊃━☆变咕呱 -->
+        <div class="start-info">
+            🩸 一个氛围感十足的暗黑风格心理小测试<br>
+            📝 测试共包含25个问题，每个问题有4个选项<br>
+            🕰️ 测试时间约需5-10分钟<br>
+            🧐 请根据第一直觉选择答案<br>
+            ⚠️ 测试仅供娱乐，无任何医学或心理学诊断意义
+        </div>
+        <!-- *⁂((✪⥎✪))⁂* -->
+        <button class="start-button" onclick="startTest()">开始测试</button>
+    </div>
+
+    <!-- 进度条 -->
     <div class="progress-container" id="progressContainer">
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
-        <div class="progress-text" id="progressText">问题 1 / 10</div>
+        <div class="progress-text" id="progressText">问题 1 / 25</div>
     </div>
 
+    <!-- 问题卡片 -->
     <div class="question-card" id="questionCard">
         <h2 class="question-title" id="questionTitle"></h2>
         <div class="options-container" id="optionsContainer"></div>
     </div>
 
+    <!-- 结果卡片 -->
     <div class="result-card" id="resultCard">
         <h2 class="result-title" id="resultTitle">测试结果</h2>
         <div class="result-image" id="resultImage"></div>
@@ -456,12 +562,12 @@
         <p class="result-description" id="resultDescription"></p>
         <button class="restart-button" onclick="restartTest()">重新测试</button>
     </div>
-
-<script>
+    <!-- ⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾ -->
+    <script>
         // 问题数据，每个选项有一个生存得分（1-4分）
         const questions = [
             {
-                question: "在黑暗的夜晚，你独自走在回家的路上，突然听到身后有脚步声，你会？",
+                question: "在黑暗的夜晚🌃，你独自走在回家的路上，突然听到身后有脚步声，你会？",
                 options: [
                     { text: "😱加快脚步，快速离开", score: 4 },
                     { text: "🧐回头看个究竟", score: 1 },
@@ -470,7 +576,7 @@
                 ]
             },
             {
-                question: "如果你发现一扇通往未知的门，门后传来奇怪的声音，你会？",
+                question: "如果你发现一扇通往未知的门🚪，门后传来奇怪的声音，你会？",
                 options: [
                     { text: "🚪立即打开门查看", score: 1 },
                     { text: "🚪先敲门询问", score: 2 },
@@ -479,16 +585,16 @@
                 ]
             },
             {
-                question: "当你照镜子时，发现镜中的自己对你微笑，而你没有笑，你会？",
+                question: "当你照镜子🪞时，发现镜中的自己对你微笑☺️，而你没有笑😳，你会？",
                 options: [
-                    { text: "🪞立即打碎镜子", score: 4 },
-                    { text: "😦转身逃跑", score: 3 },
-                    { text: "🪞对着镜子微笑回应", score: 2 },
+                    { text: "🔨立即打碎镜子", score: 4 },
+                    { text: "🏃🏻‍♂️转身逃跑", score: 3 },
+                    { text: "☺️对着镜子微笑回应", score: 2 },
                     { text: "🙏🏻闭上眼睛默念咒语", score: 1 }
                 ]
             },
             {
-                question: "在废弃的医院里，你听到有人在呼唤你的名字，你会？",
+                question: "在废弃的医院🏥里，你听到有人在呼唤你的名字，你会？",
                 options: [
                     { text: "🗣️回应那个声音", score: 1 },
                     { text: "👂🏻寻找声音的来源", score: 2 },
@@ -497,21 +603,21 @@
                 ]
             },
             {
-                question: "如果预知自己将在三天后死亡，你会？",
+                question: "如果预知自己将在三天后死亡☠️，你会？",
                 options: [
                     { text: "😇立即安排后事", score: 2 },
                     { text: "🤗尽情享受剩下的时光", score: 3 },
                     { text: "😫寻找避免死亡的方法", score: 4 },
-                    { text: "🥺告诉亲朋好友", score: 1 }
+                    { text: "🥹告诉亲朋好友", score: 1 }
                 ]
             },
             {
-                question: "你在午夜接到一个未知号码的来电，电话里只有沉重的呼吸声，你会？",
+                question: "你在午夜接到一个未知号码的来电📲，电话里只有沉重的呼吸声，你会？",
                 options: [
                     { text: "☎️立即挂断电话", score: 1 },
                     { text: "🧐询问对方是谁", score: 2 },
                     { text: "😕保持沉默听下去", score: 3 },
-                    { text: "🚑拨打120", score: 4 }
+                    { text: "👮🏻‍♂️立即报警", score: 4 }
                 ]
             },
             {
@@ -524,16 +630,16 @@
                 ]
             },
             {
-                question: "在雷雨交加的夜晚，家里突然停电，你看到一个黑影从窗前闪过，你会？",
+                question: "在🌩️🌧️交加的夜晚，家里突然停电，你看到一个黑影从窗前闪过，你会？",
                 options: [
                     { text: "🔪拿武器检查所有房间", score: 3 },
                     { text: "😴躲进被子里装睡", score: 1 },
                     { text: "📱打开手机照明查看", score: 2 },
-                    { text: "📱立即拨打求救电话", score: 4 }
+                    { text: "🆘立即拨打求救电话", score: 4 }
                 ]
             },
             {
-                question: "你做了一个连续三天的噩梦，每次都梦见自己以同样的方式死亡，你会？",
+                question: "你做了一个连续三天的噩梦，每次都梦见自己以同样的方式死亡☠️，你会？",
                 options: [
                     { text: "👩🏻‍⚕️寻求心理医生帮助", score: 4 },
                     { text: "😫尝试改变梦境结局", score: 3 },
@@ -542,40 +648,176 @@
                 ]
             },
             {
-                question: "在一个神秘仪式中，你需要从四件物品中选择一件来保护自己，你会选？",
+                question: "在一个神秘仪式🌌中，你需要从四件物品中选择一件来保护自己，你会选？",
                 options: [
                     { text: "✞古老的银质十字架", score: 4 },
                     { text: "🔪刻有符文的匕首", score: 3 },
                     { text: "🔮装满圣水的水晶瓶", score: 4 },
-                    { text: "🪨发光的黑色石头", score: 1 }
+                    { text: "🪨发光的黑色石头", score: 2 }
+                ]
+            },
+            // 新增的15个问题
+            {
+                question: "当你独自在家时，所有电器突然自动开启又关闭，反复几次，你会？",
+                options: [
+                    { text: "🏃‍♂️立即跑出家门", score: 4 },
+                    { text: "🔍检查电路和电器", score: 2 },
+                    { text: "🙏开始祈祷", score: 1 },
+                    { text: "📞联系物业或电力公司", score: 3 }
+                ]
+            },
+            {
+                question: "在电梯🛗里，灯光突然闪烁，电梯停在楼层之间，对讲机传来诡异的笑声，你会？",
+                options: [
+                    { text: "🔘按下所有楼层按钮", score: 3 },
+                    { text: "📱立即打电话求救", score: 4 },
+                    { text: "🗣️尝试与对讲机对话", score: 1 },
+                    { text: "🧘‍♀️坐下保持冷静", score: 2 }
+                ]
+            },
+            {
+                question: "你在旧书店发现一本封面有血手印的书📓🩸，翻开后看到自己的名字在里面，你会？",
+                options: [
+                    { text: "🔥立即烧掉这本书", score: 4 },
+                    { text: "🕵️‍♂️继续阅读探究", score: 1 },
+                    { text: "📖把书放回原处", score: 2 },
+                    { text: "👨‍⚕️带着书寻求专家帮助", score: 3 }
+                ]
+            },
+            {
+                question: "深夜独自驾车🚘时，收音机📻自动调到陌生频道，播放着关于你的死亡预告，你会？",
+                options: [
+                    { text: "📱打电话报警", score: 4 },
+                    { text: "📻调换其他频道", score: 2 },
+                    { text: "🎧仔细聆听内容", score: 1 },
+                    { text: "🔙立即掉头回家", score: 3 }
+                ]
+            },
+            {
+                question: "每次午夜12点整🕛，你的所有智能设备📱🖥️💻都会自动播放同一首悲伤的安魂曲🎶，你会？",
+                options: [
+                    { text: "⚙️格式化所有设备", score: 4 },
+                    { text: "🧐研究歌曲的来源", score: 2 },
+                    { text: "📝开始记录这一现象", score: 3 },
+                    { text: "🎧戴耳机睡觉", score: 1 }
+                ]
+            },
+            {
+                question: "你收到一封没有寄件人的信✉️，里面是手绘的你家中布局图，还有“❌”标记着你的床🛏️，你会？",
+                options: [
+                    { text: "🚔立即报警", score: 4 },
+                    { text: "📷安装监控摄像头", score: 3 },
+                    { text: "🛏️今晚去朋友家睡", score: 4 },
+                    { text: "🔍对比笔迹查找来源", score: 2 }
+                ]
+            },
+            {
+                question: "每次下雨🌧️天，你都会在窗户🪟上看到同一个孩子用手指写的🆘，但窗外无人，你会？",
+                options: [
+                    { text: "🏠立即搬家", score: 4 },
+                    { text: "👻查询房屋历史", score: 3 },
+                    { text: "📸拍照记录", score: 2 },
+                    { text: "🖐️试着回应", score: 1 }
+                ]
+            },
+            {
+                question: "你养的宠物🐶突然开始对着空无一人的角落低吼，连续数日同一时间，你会？",
+                options: [
+                    { text: "🐕带宠物看兽医", score: 3 },
+                    { text: "🧹请人来净化房屋", score: 4 },
+                    { text: "📹安装摄像机记录", score: 3 },
+                    { text: "🤫观察宠物的反应", score: 1 }
+                ]
+            },
+            {
+                question: "镜子中的你动作比你慢半拍，并且有几次对你做出你没做的表情，你会？",
+                options: [
+                    { text: "🪞砸掉所有镜子", score: 4 },
+                    { text: "📽️录像记录异常", score: 3 },
+                    { text: "👥找朋友一起验证", score: 2 },
+                    { text: "👀尝试与镜中的自己沟通", score: 1 }
+                ]
+            },
+            {
+                question: "每次经过某个路口🚏，你的电子设备都会失灵，并显示“别回头”，你会？",
+                options: [
+                    { text: "🛣️永远绕开那条路", score: 4 },
+                    { text: "🔧检查设备问题", score: 2 },
+                    { text: "👥带人一起经过", score: 3 },
+                    { text: "👀故意回头查看", score: 1 }
+                ]
+            },
+            {
+                question: "你开始每晚梦游，醒来时发现自己总在写✍🏻同一串数字，经查是某个逝者的忌日，你会？",
+                options: [
+                    { text: "🔒睡觉时锁住自己", score: 2 },
+                    { text: "📝记录所有细节", score: 3 },
+                    { text: "👨‍⚕️寻求医疗帮助", score: 4 },
+                    { text: "🕵️调查那个逝者", score: 3 }
+                ]
+            },
+            {
+                question: "所有的钟表在你家都会停在凌晨3:33，即使更换电池或换新表也一样，你会？",
+                options: [
+                    { text: "⏰全部丢掉不用钟表", score: 1 },
+                    { text: "🧐研究3:33的意义", score: 3 },
+                    { text: "⏱️尝试不同品牌钟表", score: 2 },
+                    { text: "🌙凌晨3:33保持清醒观察", score: 4 }
+                ]
+            },
+            {
+                question: "你拍的照片里总有一个模糊的人影在背景中，而且每次拍照都更靠近你一些，你会？",
+                options: [
+                    { text: "📷停止拍照", score: 4 },
+                    { text: "👻研究人影身份", score: 2 },
+                    { text: "👮‍♂️把照片交给警方", score: 4 },
+                    { text: "📸继续拍照", score: 1 }
+                ]
+            },
+            {
+                question: "你开始收到来自未来的自己发来的警告邮件📧，内容每次都更紧急⚠️，你会？",
+                options: [
+                    { text: "☺️完全忽略这些邮件", score: 1 },
+                    { text: "🔒加强网络安全", score: 2 },
+                    { text: "📧按照警告行动", score: 4 },
+                    { text: "👨‍💻追踪邮件来源", score: 3 }
+                ]
+            },
+            {
+                question: "你的影子开始有自己的行动，有时会在阳光☀️下做出与你不同的姿势，你会？",
+                options: [
+                    { text: "🌞避免阳光照射", score: 2 },
+                    { text: "🎭模仿影子的动作", score: 1 },
+                    { text: "📹录像分析影子", score: 3 },
+                    { text: "👨‍🔬寻找科学解释", score: 4 }
                 ]
             }
         ];
 
-        // 根据生命重视度分数范围确定结果
+        // 将根据生命重视度分数所在范围确定结果
         const results = [
             {
                 title: "死神使者",
                 description: "你对死亡有着特殊的感知力，经常能感受到超自然的存在。你的灵魂徘徊在生死之间，既是死神的使者，也是生者的守护者。你对死亡较为接受，认为死亡是生命的一部分。",
-                scoreRange: {min: 10, max: 20},
+                scoreRange: {min: 25, max: 50},
                 image: "./images/death-messenger.png"
             },
             {
                 title: "灵魂行者",
                 description: "你拥有看见灵魂的能力，能够与另一个世界沟通。你的存在连接着生死两界，是灵魂的引导者。你尊重死亡但更关注灵魂的旅程。",
-                scoreRange: {min: 21, max: 25},
+                scoreRange: {min: 51, max: 70},
                 image: "./images/soul-walker.png"
             },
             {
                 title: "命运挑战者",
                 description: "你勇敢地面对死亡的威胁，从不向命运低头。你的勇气和决心让你能够战胜死亡的阴影。你珍惜生命，会为生存而战。",
-                scoreRange: {min: 26, max: 30},
+                scoreRange: {min: 71, max: 85},
                 image: "./images/fate-challenger.jpg"
             },
             {
                 title: "生命守护者",
-                description: "你珍惜生命，尊重死亡，在生死之间找到了平衡。你是生命的守护者，用爱和希望对抗死亡。你认为生命无比珍贵，会竭尽全力保护它。",
-                scoreRange: {min: 31, max: 40},
+                description: "你极度珍惜生命，尊重死亡，在生死之间找到了完美平衡。你是生命的坚定守护者，用爱和希望对抗死亡。你认为生命无比珍贵，会竭尽全力保护它。",
+                scoreRange: {min: 86, max: 100},
                 image: "./images/life-guardian.jpg"
             }
         ];
@@ -591,8 +833,21 @@
         let currentQuestion = 0;
         let selectedOptions = [];
         let totalScore = 0;
+        let testStarted = false;
 
         function startTest() {
+            testStarted = true;
+            currentQuestion = 0;
+            selectedOptions = [];
+            totalScore = 0;
+            
+            // 隐藏开始页面
+            document.getElementById('startContainer').style.display = 'none';
+            
+            // 显示测试界面
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('questionCard').style.display = 'block';
+            
             showQuestion();
             updateProgress();
         }
@@ -665,8 +920,8 @@
             
             // 如果分数不在任何范围内，选择最接近的
             if (!result) {
-                if (totalScore < 10) result = results[0];
-                else if (totalScore > 45) result = results[3];
+                if (totalScore < 25) result = results[0];
+                else if (totalScore > 100) result = results[3];
                 else {
                     // 找到分数最接近的结果
                     const distances = results.map(r => 
@@ -680,7 +935,7 @@
             // 显示结果
             document.getElementById('resultTitle').textContent = result.title;
             document.getElementById('resultDescription').textContent = result.description;
-            document.getElementById('lifeScore').textContent = `生命重视度：${totalScore}分(满分40分)`;
+            document.getElementById('lifeScore').textContent = `生命重视度：${totalScore}分(满分100分)`;
             
             // 设置结果图片
             const resultImage = document.getElementById('resultImage');
@@ -695,17 +950,19 @@
         }
 
         function restartTest() {
-            currentQuestion = 0;
-            selectedOptions = [];
-            totalScore = 0;
             document.getElementById('resultCard').style.display = 'none';
-            document.getElementById('questionCard').style.display = 'block';
-            document.getElementById('progressContainer').style.display = 'block';
-            startTest();
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('startContainer').style.display = 'block';
         }
 
-        // 启动！
-        startTest();
+        // 初始化显示开始页面
+        window.onload = function() {
+            document.getElementById('startContainer').style.display = 'block';
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'none';
+        };
     </script>
 </body>
 </html>

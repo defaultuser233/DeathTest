@@ -589,9 +589,9 @@
     </div>
     <!-- ⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾ -->
     <!-- 背景音乐 -->
-    <audio id="bgm" loop autoplay muted preload="auto">
+    <audio id="bgm" loop muted preload="metadata">
         <source src="./bgm/to_the_front.ogg" type="audio/ogg">
-    您的浏览器不支持 audio 标签。
+        如果你看到了这段文字，说明您的浏览器不支持audio标签。
     </audio>
         <!-- 右上角开关 -->
         <button id="bgm-toggle" class="bgm-switch" title="背景音乐开关">🔇</button>
@@ -599,29 +599,43 @@
         /* ===== 背景音乐控制 ===== */
         const bgm = document.getElementById('bgm');
         const btn = document.getElementById('bgm-toggle');
-        // 首次交互后取消静音（浏览器策略）
-        function unmuteBgm(){
-            bgm.muted = false;
-            bgm.volume = 0.85; // 可选：设定音量
-            btn.classList.add('on');
-            btn.textContent = '🔊';
-            document.body.removeEventListener('click', unmuteBgm, { once:true });
-        }
-        document.body.addEventListener('click', unmuteBgm, { once:true });
         
-        // 点击按钮手动开 / 关
-        btn.addEventListener('click', (e)=>{
-            e.stopPropagation(); // 防止跟 body 的首次点击冲突
-            if(bgm.paused || bgm.muted){
-                bgm.muted = false;
-                bgm.play();
-                btn.textContent = '🔊';
-                btn.classList.add('on');
-            }else{
+        // 初始状态
+        btn.textContent = '🔇';
+        
+        // 点击按钮切换音乐状态
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            if (bgm.muted) {
+                // 开启音乐
+                if (bgm.paused) {
+                    // 第一次播放
+                    bgm.play().then(() => {
+                        bgm.muted = false;
+                        bgm.volume = 0.85;
+                        btn.textContent = '🔊';
+                        btn.classList.add('on');
+                    }).catch(error => {
+                        console.log('播放被阻止，需要用户交互');
+                        // 如果自动播放被阻止，提示用户先点击页面
+                        bgm.muted = false;
+                        bgm.play();
+                        btn.textContent = '🔊';
+                        btn.classList.add('on');
+                    });
+                } else {
+                    // 已经加载但被静音
+                    bgm.muted = false;
+                    btn.textContent = '🔊';
+                    btn.classList.add('on');
+                }
+            } else {
+                // 关闭音乐
                 bgm.muted = true;
                 btn.textContent = '🔇';
                 btn.classList.remove('on');
-          }
+            }
         });
         // 问题数据，每个选项有一个生存得分（1-4分）
         const questions = [

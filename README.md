@@ -39,6 +39,7 @@
 ## ⚖️ 声明
 
 - 测试仅供娱乐，无任何医学或心理学诊断意义
+- 背景音乐来源于[OpenGameArt.Org](https://opengameart.org/content/to-the-front)
 - 代码基于 MIT 协议开源，二次开发请保留原作者注释里那只狐狸 (🦊)
 
 ## 🌕 AI协同开发声明

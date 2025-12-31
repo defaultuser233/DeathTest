@@ -516,6 +516,31 @@
                 font-size: 1.2rem;
             }
         }
+        
+        /* 背景音乐开关 */
+            .bgm-switch{
+            position:fixed;
+            top:20px;
+            right:20px;
+            z-index:999;
+            width:44px;
+            height:44px;
+            border:none;
+            border-radius:50%;
+            background:rgba(255,0,0,.25);
+            color:#fff;
+            font-size:20px;
+            cursor:pointer;
+            box-shadow:0 0 10px rgba(255,0,0,.5);
+            transition:.3s;
+        }
+        .bgm-switch:hover{
+            background:rgba(255,0,0,.45);
+            transform:scale(1.1);
+        }
+        
+        /* 静音 / 出声 图标切换 */
+        .bgm-switch.on{ color:#ff0; text-shadow:0 0 8px #ff0; }
     </style>
     <!-- ≽^•༚• ྀི≼ -->
 </head>
@@ -563,7 +588,41 @@
         <button class="restart-button" onclick="restartTest()">重新测试</button>
     </div>
     <!-- ⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾ -->
+    <!-- 背景音乐 -->
+    <audio id="bgm" loop autoplay muted preload="auto">
+        <source src="./bgm/to_the_front.ogg" type="audio/ogg">
+    您的浏览器不支持 audio 标签。
+    </audio>
+        <!-- 右上角开关 -->
+        <button id="bgm-toggle" class="bgm-switch" title="背景音乐开关">🔇</button>
     <script>
+        /* ===== 背景音乐控制 ===== */
+        const bgm = document.getElementById('bgm');
+        const btn = document.getElementById('bgm-toggle');
+        // 首次交互后取消静音（浏览器策略）
+        function unmuteBgm(){
+            bgm.muted = false;
+            bgm.volume = 0.85; // 可选：设定音量
+            btn.classList.add('on');
+            btn.textContent = '🔊';
+            document.body.removeEventListener('click', unmuteBgm, { once:true });
+        }
+        document.body.addEventListener('click', unmuteBgm, { once:true });
+        
+        // 点击按钮手动开 / 关
+        btn.addEventListener('click', (e)=>{
+            e.stopPropagation(); // 防止跟 body 的首次点击冲突
+            if(bgm.paused || bgm.muted){
+                bgm.muted = false;
+                bgm.play();
+                btn.textContent = '🔊';
+                btn.classList.add('on');
+            }else{
+                bgm.muted = true;
+                btn.textContent = '🔇';
+                btn.classList.remove('on');
+          }
+        });
         // 问题数据，每个选项有一个生存得分（1-4分）
         const questions = [
             {

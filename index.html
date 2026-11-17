@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="暗黑风格心理小测试：25 道情境题，测出你的「死亡人格」与生命重视度。">
+    <meta name="theme-color" content="#1a0000">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="死亡测试 · 测出你的死亡人格">
+    <meta property="og:description" content="25 道暗黑情境题，评估你对生命的重视程度与面对死亡威胁时的反应。">
+    <meta property="og:url" content="https://defaultuser233.github.io/DeathTest/">
+    <meta property="og:image" content="https://defaultuser233.github.io/DeathTest/images/cover.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <link rel="icon" type="image/svg+xml" href="./images/favicon.svg">
+    <link rel="apple-touch-icon" href="./images/apple-touch-icon.png">
     <!--
     This is a 🦊.
       /\_/\    ←三角耳
@@ -310,6 +321,11 @@
             position: relative;
             overflow: hidden;
             font-size: 1.1rem;
+            font-family: inherit;
+            color: inherit;
+            text-align: left;
+            display: block;
+            width: 100%;
         }
 
         .option::before {
@@ -415,14 +431,15 @@
         }
 
         .result-image {
+            display: block;
             width: 280px;
             height: 280px;
             border-radius: 10px;
             margin: 20px auto;
             border: 3px solid #ff0000;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
-            background-size: cover;
-            background-position: center;
+            object-fit: cover;
+            background: radial-gradient(circle at 50% 40%, rgba(255, 0, 0, 0.25), rgba(20, 0, 0, 0.9));
         }
 
         .result-description {
@@ -484,8 +501,12 @@
             left: 100%;
         }
 
-        .hidden {
-            display: none;
+        .option:focus-visible,
+        .start-button:focus-visible,
+        .restart-button:focus-visible,
+        .bgm-switch:focus-visible {
+            outline: 2px solid #ff4d4d;
+            outline-offset: 3px;
         }
 
         @media (max-width: 600px) {
@@ -541,6 +562,17 @@
         
         /* 静音 / 出声 图标切换 */
         .bgm-switch.on{ color:#ff0; text-shadow:0 0 8px #ff0; }
+
+        /* 尊重系统「减少动态效果」设置 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
     </style>
     <!-- ≽^•༚• ྀི≼ -->
 </head>
@@ -562,6 +594,9 @@
             ⚠️ 测试仅供娱乐，无任何医学或心理学诊断意义
         </div>
         <!-- *⁂((✪⥎✪))⁂* -->
+        <noscript>
+            <p class="start-info">⚠️ 本测试需要启用 JavaScript 才能运行，请开启后刷新页面。</p>
+        </noscript>
         <button class="start-button" onclick="startTest()">开始测试</button>
     </div>
 
@@ -575,14 +610,14 @@
 
     <!-- 问题卡片 -->
     <div class="question-card" id="questionCard">
-        <h2 class="question-title" id="questionTitle"></h2>
-        <div class="options-container" id="optionsContainer"></div>
+        <h2 class="question-title" id="questionTitle" aria-live="polite"></h2>
+        <div class="options-container" id="optionsContainer" role="group" aria-labelledby="questionTitle"></div>
     </div>
 
     <!-- 结果卡片 -->
     <div class="result-card" id="resultCard">
         <h2 class="result-title" id="resultTitle">测试结果</h2>
-        <div class="result-image" id="resultImage"></div>
+        <img class="result-image" id="resultImage" alt="">
         <div class="life-score" id="lifeScore"></div>
         <p class="result-description" id="resultDescription"></p>
         <button class="restart-button" onclick="restartTest()">重新测试</button>
@@ -594,7 +629,7 @@
         如果你看到了这段文字，说明您的浏览器不支持audio标签。
     </audio>
         <!-- 右上角开关 -->
-        <button id="bgm-toggle" class="bgm-switch" title="背景音乐开关">🔇</button>
+        <button id="bgm-toggle" class="bgm-switch" title="背景音乐开关" aria-label="背景音乐" aria-pressed="false">🔇</button>
     <script>
         /* ===== 背景音乐控制 ===== */
         const bgm = document.getElementById('bgm');
@@ -616,25 +651,29 @@
                         bgm.volume = 0.85;
                         btn.textContent = '🔊';
                         btn.classList.add('on');
+                        btn.setAttribute('aria-pressed', 'true');
                     }).catch(error => {
                         console.log('播放被阻止，需要用户交互');
                         // 如果自动播放被阻止，提示用户先点击页面
                         bgm.muted = false;
-                        bgm.play();
+                        bgm.play().catch(() => {});
                         btn.textContent = '🔊';
                         btn.classList.add('on');
+                        btn.setAttribute('aria-pressed', 'true');
                     });
                 } else {
                     // 已经加载但被静音
                     bgm.muted = false;
                     btn.textContent = '🔊';
                     btn.classList.add('on');
+                    btn.setAttribute('aria-pressed', 'true');
                 }
             } else {
                 // 关闭音乐
                 bgm.muted = true;
                 btn.textContent = '🔇';
                 btn.classList.remove('on');
+                btn.setAttribute('aria-pressed', 'false');
             }
         });
         // 问题数据，每个选项有一个生存得分（1-4分）
@@ -873,25 +912,25 @@
                 title: "死神使者",
                 description: "你对死亡有着特殊的感知力，经常能感受到超自然的存在。你的灵魂徘徊在生死之间，既是死神的使者，也是生者的守护者。你对死亡较为接受，认为死亡是生命的一部分。",
                 scoreRange: {min: 0, max: 25},
-                image: "./images/death-messenger.png"
+                image: "./images/death-messenger.webp"
             },
             {
                 title: "灵魂行者",
                 description: "你拥有看见灵魂的能力，能够与另一个世界沟通。你的存在连接着生死两界，是灵魂的引导者。你尊重死亡但更关注灵魂的旅程。",
                 scoreRange: {min: 26, max: 50},
-                image: "./images/soul-walker.png"
+                image: "./images/soul-walker.webp"
             },
             {
                 title: "命运挑战者",
                 description: "你勇敢地面对死亡的威胁，从不向命运低头。你的勇气和决心让你能够战胜死亡的阴影。你珍惜生命，会为生存而战。",
                 scoreRange: {min: 51, max: 75},
-                image: "./images/fate-challenger.jpg"
+                image: "./images/fate-challenger.webp"
             },
             {
                 title: "生命守护者",
                 description: "你极度珍惜生命，尊重死亡，在生死之间找到了完美平衡。你是生命的坚定守护者，用爱和希望对抗死亡。你认为生命无比珍贵，会竭尽全力保护它。",
                 scoreRange: {min: 76, max: 100},
-                image: "./images/life-guardian.jpg"
+                image: "./images/life-guardian.webp"
             }
         ];
 
@@ -923,13 +962,19 @@
             return Math.round((below + scoreCounts[index] / 2) / totalCombinations * 100);
         }
 
-        // 备用图片（如果本地图片加载失败）
-        const fallbackImages = {
-            "死神使者": "https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg",
-            "灵魂行者": "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg",
-            "命运挑战者": "https://cdn.pixabay.com/photo/2017/01/16/19/17/mountain-1985027_1280.jpg",
-            "生命守护者": "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg"
-        };
+        // 图片加载失败时的本地占位图（不依赖网络，保证离线可用）
+        const resultImagePlaceholder = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280">
+                <defs>
+                    <radialGradient id="g" cx="50%" cy="40%" r="75%">
+                        <stop offset="0" stop-color="#5b0000"/>
+                        <stop offset="1" stop-color="#120000"/>
+                    </radialGradient>
+                </defs>
+                <rect width="280" height="280" fill="url(#g)"/>
+                <path d="M140 66c15 21 42 49 42 76a42 42 0 0 1-84 0c0-27 27-55 42-76z" fill="#e00000" opacity="0.85"/>
+            </svg>`
+        );
 
         let currentQuestion = 0;
         let totalScore = 0;
@@ -959,13 +1004,16 @@
             optionsContainer.innerHTML = '';
             
             question.options.forEach((option, index) => {
-                const optionElement = document.createElement('div');
+                const optionElement = document.createElement('button');
+                optionElement.type = 'button';
                 optionElement.className = 'option';
                 optionElement.textContent = option.text;
                 optionElement.onclick = () => selectOption(index);
                 optionsContainer.appendChild(optionElement);
             });
 
+            // 用键盘作答时把焦点带到新题目，避免焦点丢失
+            optionsContainer.querySelector('.option').focus();
             answering = false;
         }
 
@@ -1025,13 +1073,13 @@
             
             // 设置结果图片
             const resultImage = document.getElementById('resultImage');
-            resultImage.style.backgroundImage = `url(${result.image})`;
-            
-            // 如果图片加载失败，使用备用图片
-            resultImage.onerror = function() {
-                this.style.backgroundImage = `url(${fallbackImages[result.title]})`;
+            resultImage.alt = `${result.title}形象图`;
+            resultImage.onerror = () => {
+                resultImage.onerror = null;
+                resultImage.src = resultImagePlaceholder;
             };
-            
+            resultImage.src = result.image;
+
             document.getElementById('resultCard').style.display = 'block';
         }
 
@@ -1041,15 +1089,8 @@
             document.getElementById('progressContainer').style.display = 'none';
             document.getElementById('questionCard').style.display = 'none';
             document.getElementById('startContainer').style.display = 'block';
+            document.querySelector('.start-button').focus();
         }
-
-        // 初始化显示开始页面
-        window.onload = function() {
-            document.getElementById('startContainer').style.display = 'block';
-            document.getElementById('progressContainer').style.display = 'none';
-            document.getElementById('questionCard').style.display = 'none';
-            document.getElementById('resultCard').style.display = 'none';
-        };
     </script>
 </body>
 </html>

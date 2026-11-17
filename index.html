@@ -872,28 +872,56 @@
             {
                 title: "死神使者",
                 description: "你对死亡有着特殊的感知力，经常能感受到超自然的存在。你的灵魂徘徊在生死之间，既是死神的使者，也是生者的守护者。你对死亡较为接受，认为死亡是生命的一部分。",
-                scoreRange: {min: 25, max: 50},
+                scoreRange: {min: 0, max: 25},
                 image: "./images/death-messenger.png"
             },
             {
                 title: "灵魂行者",
                 description: "你拥有看见灵魂的能力，能够与另一个世界沟通。你的存在连接着生死两界，是灵魂的引导者。你尊重死亡但更关注灵魂的旅程。",
-                scoreRange: {min: 51, max: 70},
+                scoreRange: {min: 26, max: 50},
                 image: "./images/soul-walker.png"
             },
             {
                 title: "命运挑战者",
                 description: "你勇敢地面对死亡的威胁，从不向命运低头。你的勇气和决心让你能够战胜死亡的阴影。你珍惜生命，会为生存而战。",
-                scoreRange: {min: 71, max: 85},
+                scoreRange: {min: 51, max: 75},
                 image: "./images/fate-challenger.jpg"
             },
             {
                 title: "生命守护者",
                 description: "你极度珍惜生命，尊重死亡，在生死之间找到了完美平衡。你是生命的坚定守护者，用爱和希望对抗死亡。你认为生命无比珍贵，会竭尽全力保护它。",
-                scoreRange: {min: 86, max: 100},
+                scoreRange: {min: 76, max: 100},
                 image: "./images/life-guardian.jpg"
             }
         ];
+
+        // 依据每题分值的等概率组合，把原始总分换算成同人数的百分位（0-100）
+        const scoreCounts = (() => {
+            let counts = [1];
+            for (const q of questions) {
+                const next = new Array(counts.length + 3).fill(0);
+                for (let s = 0; s < counts.length; s++) {
+                    if (!counts[s]) continue;
+                    for (const option of q.options) next[s + option.score - 1] += counts[s];
+                }
+                counts = next;
+            }
+            return counts;
+        })();
+        const scoreBase = questions.length; // 每题最低 1 分
+        const totalCombinations = Math.pow(4, questions.length);
+
+        function toPercentile(rawScore) {
+            const index = rawScore - scoreBase;
+            if (index <= 0) return 0;
+            if (index >= scoreCounts.length) return 100;
+
+            let below = 0;
+            for (let i = 0; i < index; i++) {
+                below += scoreCounts[i];
+            }
+            return Math.round((below + scoreCounts[index] / 2) / totalCombinations * 100);
+        }
 
         // 备用图片（如果本地图片加载失败）
         const fallbackImages = {
@@ -904,15 +932,13 @@
         };
 
         let currentQuestion = 0;
-        let selectedOptions = [];
         let totalScore = 0;
-        let testStarted = false;
+        let answering = false;
 
         function startTest() {
-            testStarted = true;
             currentQuestion = 0;
-            selectedOptions = [];
             totalScore = 0;
+            answering = false;
             
             // 隐藏开始页面
             document.getElementById('startContainer').style.display = 'none';
@@ -939,18 +965,23 @@
                 optionElement.onclick = () => selectOption(index);
                 optionsContainer.appendChild(optionElement);
             });
+
+            answering = false;
         }
 
         function selectOption(index) {
+            // 过渡动画期间忽略点击，避免连点跳题或重复计分
+            if (answering) return;
+            answering = true;
+
             const options = document.querySelectorAll('.option');
             options.forEach(opt => opt.classList.remove('selected'));
             options[index].classList.add('selected');
 
             setTimeout(() => {
-                // 记录选择的选项和分数
-                selectedOptions.push(index);
+                // 记录选择的分数
                 totalScore += questions[currentQuestion].options[index].score;
-        
+
                 currentQuestion++;
                 updateProgress();
 
@@ -982,33 +1013,15 @@
             document.getElementById('questionCard').style.display = 'none';
             document.getElementById('progressContainer').style.display = 'none';
             
-            // 根据总分数确定结果
-            let result;
-            for (const r of results) {
-                if (totalScore >= r.scoreRange.min && totalScore <= r.scoreRange.max) {
-                    result = r;
-                    break;
-                }
-            }
-            
-            // 如果分数不在任何范围内，选择最接近的
-            if (!result) {
-                if (totalScore < 25) result = results[0];
-                else if (totalScore > 100) result = results[3];
-                else {
-                    // 找到分数最接近的结果
-                    const distances = results.map(r => 
-                        Math.min(Math.abs(totalScore - r.scoreRange.min), Math.abs(totalScore - r.scoreRange.max))
-                    );
-                    const minDistanceIndex = distances.indexOf(Math.min(...distances));
-                    result = results[minDistanceIndex];
-                }
-            }
-            
+            // 原始总分换算成 0-100 的百分位，再按区间取人格
+            const score = toPercentile(totalScore);
+            const result = results.find(r => score >= r.scoreRange.min && score <= r.scoreRange.max)
+                || results[results.length - 1];
+
             // 显示结果
             document.getElementById('resultTitle').textContent = result.title;
             document.getElementById('resultDescription').textContent = result.description;
-            document.getElementById('lifeScore').textContent = `生命重视度：${totalScore}分(满分100分)`;
+            document.getElementById('lifeScore').textContent = `生命重视度：${score}分(满分100分)`;
             
             // 设置结果图片
             const resultImage = document.getElementById('resultImage');
@@ -1023,6 +1036,7 @@
         }
 
         function restartTest() {
+            answering = false;
             document.getElementById('resultCard').style.display = 'none';
             document.getElementById('progressContainer').style.display = 'none';
             document.getElementById('questionCard').style.display = 'none';
